@@ -25,34 +25,35 @@ pub fn mask_name(name: &str) -> String {
 
 pub fn mask_phone(phone: &str) -> String {
     let chars: Vec<char> = phone.chars().collect();
-    if chars.len() < 7 {
+    if chars.len() <= 2 {
         return "*".repeat(chars.len());
     }
     let mut s = String::new();
-    for (i, c) in chars.iter().enumerate() {
-        if i >= 3 && i < chars.len() - 4 {
-            s.push('*');
-        } else {
-            s.push(*c);
-        }
+    s.push(chars[0]);
+    s.push(chars[1]);
+    for _ in 0..chars.len() - 2 {
+        s.push('*');
     }
     s
 }
 
 pub fn mask_id_card(id_card: &str) -> String {
     let chars: Vec<char> = id_card.chars().collect();
-    if chars.len() < 8 {
-        return "*".repeat(chars.len());
-    }
-    let mut s = String::new();
-    for (i, c) in chars.iter().enumerate() {
-        if i >= 6 && i < chars.len() - 4 {
-            s.push('*');
-        } else {
-            s.push(*c);
+    match chars.len() {
+        0 => String::new(),
+        1 => "*".to_string(),
+        2 => "**".to_string(),
+        len => {
+            let mut s = String::new();
+            s.push(chars[0]);
+            s.push(chars[1]);
+            for _ in 0..len - 3 {
+                s.push('*');
+            }
+            s.push(chars[len - 1]);
+            s
         }
     }
-    s
 }
 
 pub fn mask_email(email: &str) -> String {
@@ -86,16 +87,16 @@ pub fn mask_email(email: &str) -> String {
 
 pub fn mask_bank_card(card: &str) -> String {
     let chars: Vec<char> = card.chars().collect();
-    if chars.len() < 8 {
+    if chars.len() <= 4 {
         return "*".repeat(chars.len());
     }
     let mut s = String::new();
-    for (i, c) in chars.iter().enumerate() {
-        if i >= 6 && i < chars.len() - 4 {
-            s.push('*');
-        } else {
-            s.push(*c);
-        }
+    s.push(chars[0]);
+    s.push(chars[1]);
+    s.push(chars[2]);
+    s.push(chars[3]);
+    for _ in 0..chars.len() - 4 {
+        s.push('*');
     }
     s
 }
@@ -146,12 +147,16 @@ mod tests {
 
     #[test]
     fn test_mask_phone() {
-        assert_eq!(mask_phone("13812345678"), "138****5678");
+        assert_eq!(mask_phone("13812345678"), "13*********");
+        assert_eq!(mask_phone("13998765432"), "13*********");
+        assert_eq!(mask_phone("12"), "**");
     }
 
     #[test]
     fn test_mask_id_card() {
-        assert_eq!(mask_id_card("110101199001011234"), "110101********1234");
+        assert_eq!(mask_id_card("110101199001011234"), "11***************4");
+        assert_eq!(mask_id_card("310101199505123456"), "31***************6");
+        assert_eq!(mask_id_card("12"), "**");
     }
 
     #[test]
@@ -162,7 +167,8 @@ mod tests {
 
     #[test]
     fn test_mask_bank_card() {
-        assert_eq!(mask_bank_card("6222021234567890123"), "622202********0123");
+        assert_eq!(mask_bank_card("6222021234567890123"), "6222*************");
+        assert_eq!(mask_bank_card("6228480123456789012"), "6228*************");
     }
 
     #[test]
